@@ -1,0 +1,318 @@
+---
+title: "Análise das estratégias parar reamostrar a máscara de pastagens do Brasil"
+author: "Oliveira-Santos, Claudinei"
+date: "19 de setembro de 2017"
+output: 
+  html_document: 
+    fig_caption: yes
+    fig_height: 12
+    fig_width: 12
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r packages, message=FALSE, warning=FALSE, echo=FALSE}
+library(raster)
+library(scales)
+library(ggplot2)
+```
+
+
+
+```{r tableaCSV, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+AREA <- read.csv("Percentual_Aumento_area.csv", sep = "\t", dec = ",")
+AREARes <- read.csv("Percentual_omit_comit.csv", sep = "\t", dec = ",")
+AREAPerc <- read.csv("Percentual_omit_comit_perc.csv", sep = "\t", dec = ",")
+```
+
+
+
+```{r pastAreasFiles, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+shpHet <- shapefile("Shapefiles/Pastagem_MA.shp")
+shpHom <- shapefile("Shapefiles/Pastagem_CE.shp")
+```
+
+
+
+```{r pastHetFiles, echo=FALSE, cache=TRUE}
+rstHet1m <- raster("Raster_5_1_m/ID123243_1m.tif")
+rstHet5m <- raster("Raster_5_1_m/ID123243_5m.tif")
+rstHet10m <- raster("Raster_5_1_m/ID123243_10m.tif")
+rstHet50m <- raster("Raster_5_1_m/ID123243_50m.tif")
+rstHet250m <- raster("Raster_5_1_m/ID123243_250m.tif")
+```
+
+
+
+```{r pastHomFiles, echo=FALSE, cache=TRUE}
+rstHom1m <- raster("Raster_5_1_m/id98771_1m.tif")
+rstHom5m <- raster("Raster_5_1_m/id98771_5m.tif")
+rstHom10m <- raster("Raster_5_1_m/id98771_10m.tif")
+rstHom50m <- raster("Raster_5_1_m/id98771_50m.tif")
+rstHom250m <- raster("Raster_5_1_m/id98771_250m.tif")
+```
+
+
+
+```{r shpHom, echo=FALSE, cache=TRUE}
+shpHom1 <- shapefile("Shapefiles/CE_1m_250m.shp")
+shpHom5 <- shapefile("Shapefiles/CE_5m_250m.shp")
+shpHom10 <- shapefile("Shapefiles/CE_10m_250m.shp")
+shpHom50 <- shapefile("Shapefiles/CE_50m_250m.shp")
+```
+
+<p style="text-align: justify;">
+Conforme é mostrado ao longo deste texto, o processo de rasterizar o mapa de pastagem para uma resolução alta (1 m, 5 m, 10 m e 50 m) e em seguida reamostrá-lo para uma resolução mais baixa (250 m - NDVI/Modis), não resultará em diferenças significativas em termos da área total de pastagem, quando comparado em relação ao mapa original (mapa síntese). Umas das razões para esse resultado é os erros de comissão e omissão se anulam quase totalmente, resultando em uma área com 97 a 102 % da área mapa síntese.
+
+Contudo, as área de omitidas e comitidas são significativas. Com áreas comitidas ariando em torno de 8 % para áreas homogêneas e  23 % para áreas heterogêneas , e áreas omitidas variando em torno de 5 % para áreas homogêneas e 24 % para áreas heterogêneas. Se esses erros forem somados, o erro total fica em torno de 47 %.
+</p>
+
+```{r plotAreaDif, echo=FALSE, cache=TRUE, fig.height=6, fig.width=14, fig.align="center"}
+AREAPercSub <- AREAPerc[AREAPerc$Var %in% c("percentual", "omissao_perc", "comissao_perc", "total_error"),]
+AREAPercSub$Var <- ifelse(AREAPercSub$Var == "percentual", "1 % de area em relação ao mapa sintese", as.character(AREAPercSub$Var))
+AREAPercSub$Var <- ifelse(AREAPercSub$Var == "total_error", "2 % de erro acumulado (omissão + comissão)", as.character(AREAPercSub$Var))
+AREAPercSub$Var <- ifelse(AREAPercSub$Var == "omissao_perc", "3 % de erro de omissão", as.character(AREAPercSub$Var))
+AREAPercSub$Var <- ifelse(AREAPercSub$Var == "comissao_perc", "4 % de erro de comissão", as.character(AREAPercSub$Var))
+
+ggplot(AREAPercSub, aes(x = resolucao, y = Value, col = amostra))+
+  geom_point(lwd = 4)+
+  facet_wrap(~ Var, nrow = 3) + #, scales = "free")+
+  theme_bw(base_size = 12)+
+  xlab("Áreas omitidas e comitidas em cada regiões homogêneas e heterogêneas")+
+  ylab("Area de pastagem (ha e %)")
+
+```
+
+
+### Áreas analisadas
+<p style="text-align: justify;">
+Para analisar o impacto da resolução espacial de dado conjunto de dados, no processo de reamostragem do mesmo para uma escala de menor resoulção, foram escolhidas duas áreas de 11 km cada. Uma área localizda na Mata Atlântica (**fig. 1 a**), considerada heterogênea, por apresentar alta fragmentação das área de pastagens. E uma área localizada  no bioma Cerrado  (**fig. 1 b**), considerada homogênea, por ter áreas grandes e contíguas de pastagens.
+</p>
+
+<p style="text-align: justify;">
+*As figuras 1 A e B, mostram a área de pastagem em cada uma das áreas selecionadas. Essa área de pastagem foi recortada da versão 8 do mapa síntese, e não sofreu nenhum processo de reamostragem ou rasterização.*
+</p>
+
+|Area|hectare |
+|:---|:--- |
+|`Cerrado`|9685.74|
+|`Mata Atlântica`|4053.07 |
+
+```{r pastAreas, echo=TRUE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+rbPal <- colorRampPalette(c('yellow','blue'))
+shpHet@data$Col <- rbPal(10)[as.numeric(cut(shpHet@data$Past_Lapig, seq(0, 2500, by = 250)))]
+plot(shpHet, col = shpHet@data$Col, main = "Figura 1 a: area de pastagem heterogênea no Mata Atlântica")
+legend("bottom", fill = shpHet@data$Col, legend = "Pastagem", col = shpHet@data$Col)
+
+rbPal <- colorRampPalette(c('yellow','blue'))
+shpHom@data$Col <- rbPal(10)[unique(as.numeric(cut(shpHom@data$class_past, seq(0, 2500, by = 250))))]
+plot(shpHom, col = shpHom@data$Col, main = "Figura 1 b: area de pastagem homogênea no Cerrado")
+legend("bottom", fill = shpHom@data$Col, legend = "Pastagem", col = shpHom@data$Col)
+```
+
+
+### Qual o impacto de rasterizar os dados em diferentes resoluções?
+<p style="text-align: justify;">
+Os dados foram rasterizados no ArcGis, utilizando o método **CellCenter**, para as resoluções de 1, 5, 10, 50 e 250 metros. Os resultados são apresentados em uma sequência de figuras abaixo (**figura 2 a figura 6**).
+
+Foi observado que até a resolução de 50 metros, tanto para áreas homogêneas quanto heterogêneas, os erros de omissão e comissão são pouco significativos. Esse resultado faz sentido ao considerar que os dados de origem tem segmento mínimo de 6.25 ha, que foram gerados a partir de imagens de 30 metros, ou seja, um polígono classificado como pastagem tem área mínima de trinta metros. Considerando que **(se)** o método CellCenter utiliza o centro do polígono para gerar o raster, o deslocamento de pixels em relação aos shape original será pequeno.
+
+Ao rasterizar o shape para 250 metros o erro de omissão e comissão aumenta bastante. Contudo, em todos as resoluções, os erros de omissão e comissão quase se anulam em termos de área.
+
+Os gráfico abaixo apresenta a área de pastagem com base no mapa síntese, e rasterizado para diferentes resoluções no ArcGis (1 m, 10 m, 5 m e 50 m). Também é mostrada a área de pastagem reamostrado para 250 metros a partir das resoluções supracitadas (1_250, 5_250, 10_250 e 50_250).
+</p>
+
+
+```{r plotAreaPerc, echo=FALSE, cache=TRUE, fig.height=7, fig.width=12, fig.align="center"}
+# par(mfrow = c(1,2))
+ggplot(AREA, aes(x = resolucao, y = area_total, col = resolucao))+
+  geom_point(lwd = 4)+
+  facet_grid(amostra ~ ., scales = "free")+
+  theme_bw(base_size = 12)+
+  xlab("As áreas de pastagens variam muito em função da escala a partir da qual o dado foi reamostrado")+
+  ylab("Area de pastagem (ha)")
+```
+
+
+
+```{r pastHomHet 1m, echo=TRUE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(rstHet1m, col = "purple", main = "Figura 2 a: área heterogênea rasterizada para 1 metro de resolução espacial")
+plot(shpHet, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom1m, col = "purple", main = "Figura 2 b: área homogênea rasterizada para 1 metro de resolução espacial")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHomHet 5m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(rstHet5m, col = "purple", main = "Figura 3 a: área heterogênea rasterizada para 5 metros de resolução espacial")
+plot(shpHet, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom5m, col = "purple", main = "Figura 3 b: área homogênea rasterizada para 5 metros de resolução espacial")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHomHet 10m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(rstHet10m, col = "purple", main = "Figura 4 a: área heterogênea rasterizada para 10 metros de resolução espacial")
+plot(shpHet, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom10m, col = "purple", main = "Figura 4 b: área homogênea rasterizada para 10 metros de resolução espacial")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHomHet 50m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(rstHet50m, col = "purple", main = "Figura 5 a: área heterogênea rasterizada para 50 metros de resolução espacial")
+plot(shpHet, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom50m, col = "purple", main = "Figura 5 b: área homogênea rasterizada para 50 metros de resolução espacial")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHomHet 250m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(rstHet250m, col = "purple", main = "Figura 6 a: área heterogênea rasterizada para 250 metros de resolução espacial")
+plot(shpHet, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom250m, col = "purple", main = "Figura 6 b: área homogênea rasterizada para 250 metros de resolução espacial")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+### Reamostrando os dados para o grid NDVI modis (250m): Faz diferença reamostar a partir de um dado de 1, 5, 10 ou 50 metros de resolução?
+<p style="text-align: justify;">
+Foi analisado o efeito de usar diferentes resoluções espacias no processo de reamostragem do mapa síntese para a grade NDVI-Modis (250 metros). Nessa análise foram utilizadas as imagens mostras nas figuras **2** a **6** **a**, a partir dessas imagens, foi realizado um processo de reamostragem no R, usando o método de vizinho mais próximo (**NGB**), e partir de disso, analisado o impacto de se reamostrar os dados a partir das resoluçòes supracitadas. Os resuultados são apresentados nas figuras abaixo (**figura 7** a **figura 10**).
+</p>
+
+```{r pastHom 1m to 250m, echo=TRUE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(shpHom1, col = "purple", main = "Figura 7 a: área homogênea reamostrada de 1 para 250 metros")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom250m, col = "purple", main = "Figura 7 b: área homogênea rasterizada para 250 metros a partir do mapa síntese")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHom 5m to 250m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(shpHom5, col = "purple", main = "Figura 8 a: área homogênea reamostrada de 5 para 250 metros")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom250m, col = "purple", main = "Figura 8 b: área homogênea rasterizada para 250 metros a partir do mapa síntese")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHom 10m to 250m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(shpHom10, col = "purple", main = "Figura 9 a: área homogênea reamostrada de 10 para 250 metros")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom250m, col = "purple", main = "Figura 9 b: área homogênea rasterizada para 250 metros a partir do mapa síntese")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+
+```{r pastHom 50m to 250m, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+par(mfrow = c(1,2))
+
+plot(shpHom1, col = "purple", main = "Figura 10 a: área homogênea reamostrada de 50 para 250 metros")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+
+plot(rstHom250m, col = "purple", main = "Figura 10 b: área homogênea rasterizada para 250 metros a partir do mapa síntese")
+plot(shpHom, add = TRUE, col = alpha('yellow', 0.5))
+```
+
+
+### Comparação dos resultados de se convertar as imagens de 1, 5, 10 e 50 metros para 250 metros (grid NDVI-Modis)
+<p style="text-align: justify;">
+As imagens de 250 metros, obtidas por reamostragens das imagens de 1, 5, 10 e 50 metros geradas no ArcGis, são avaliadas nas imagens a seguir (**figura 11** a **figura 13**).
+
+O gráfico abaixo mostra os percentuais de omissão e comissão para os dados reamostrados a partir de cada resolução.
+</p>
+
+```{r plotArea, echo=FALSE, cache=TRUE, fig.height=6, fig.width=14, fig.align="center"}
+# par(mfrow = c(1,2))
+AREARes <- AREARes[AREARes$Var %in% c("comissao", "omissao"),]
+
+AREAPerc <- AREAPerc[AREAPerc$Var %in% c("comissao_perc", "omissao_perc"),]
+
+AREARes <- rbind(AREARes, AREAPerc)
+
+ggplot(AREARes, aes(x = resolucao, y = Value, col = amostra))+
+  geom_point(lwd = 4)+
+  facet_wrap(~ Var, scales = "free", nrow = 3)+
+  theme_bw(base_size = 12)+
+  xlab("Áreas omitidas e comitidas em cada regiões homogêneas e heterogêneas")+
+  ylab("Area de pastagem (ha e %)")
+
+```
+
+
+
+```{r shpHom1, echo=FALSE, cache=TRUE, fig.height=9, fig.width=9, fig.align="center"}
+# par(mfrow = c(1,3))
+plot(shpHom1, col = 'darkgreen', main = "Figura 11 a: diferença entre 1_250 e 5_250")
+plot(shpHom5 , col = alpha('red', 0.5), add = TRUE)
+plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
+
+plot(shpHom1, col = 'darkgreen', main = "Figura 11 b: diferença entre 1_250 e 10_250")
+plot(shpHom10, col = alpha('blue', 0.5), add = TRUE)
+plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
+
+plot(shpHom1, col = 'darkgreen', main = "Figura 11 c: diferença entre 1_250 e 50_250")
+plot(shpHom50,  col = alpha('darkorange', 0.5),add = TRUE)
+plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
+
+```
+
+
+## Comparação entre 5 para 10 e 50
+```{r shpHom5, echo=TRUE, cache=TRUE, fig.height=9, fig.width=9, fig.align="center"}
+# par(mfrow = c(1,2))
+plot(shpHom5, col = 'red', main = "Figura 12 a: diferença entre 5_250 e 10_250")
+plot(shpHom10 , col = alpha('blue', 0.5), add = TRUE)
+plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
+
+plot(shpHom5, col = 'red', main = "Figura 12 b:  diferença entre 5_250 e 50_250")
+plot(shpHom50 , col = alpha('darkorange', 0.5), add = TRUE)
+plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
+```
+
+
+## Comparação entre 10 para 50
+```{r shpHom10, echo=TRUE, cache=TRUE, fig.height=9, fig.width=9, fig.align="center"}
+plot(shpHom10, col = 'blue', main = "Figura 13:  diferença entre 10_250 e 50_250")
+plot(shpHom50 , col = alpha('darkorange', 0.5), add = TRUE)
+plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
+
+```
+
+
