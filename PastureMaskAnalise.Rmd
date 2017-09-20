@@ -280,11 +280,11 @@ ggplot(AREARes, aes(x = resolucao, y = Value, col = amostra))+
 ```{r shpHom1, echo=FALSE, cache=TRUE, fig.height=9, fig.width=9, fig.align="center"}
 # par(mfrow = c(1,3))
 plot(shpHom1, col = 'darkgreen', main = "Figura 11 a: diferença entre 1_250 e 5_250")
-plot(shpHom5 , col = alpha('red', 0.5), add = TRUE)
+plot(shpHom5 , col = alpha('darkorange', 0.5), add = TRUE)
 plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 
 plot(shpHom1, col = 'darkgreen', main = "Figura 11 b: diferença entre 1_250 e 10_250")
-plot(shpHom10, col = alpha('blue', 0.5), add = TRUE)
+plot(shpHom10, col = alpha('darkorange', 0.5), add = TRUE)
 plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 
 plot(shpHom1, col = 'darkgreen', main = "Figura 11 c: diferença entre 1_250 e 50_250")
@@ -297,11 +297,11 @@ plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 ## Comparação entre 5 para 10 e 50
 ```{r shpHom5, echo=TRUE, cache=TRUE, fig.height=9, fig.width=9, fig.align="center"}
 # par(mfrow = c(1,2))
-plot(shpHom5, col = 'red', main = "Figura 12 a: diferença entre 5_250 e 10_250")
-plot(shpHom10 , col = alpha('blue', 0.5), add = TRUE)
+plot(shpHom5, col = 'darkgreen', main = "Figura 12 a: diferença entre 5_250 e 10_250")
+plot(shpHom10 , col = alpha('darkorange', 0.5), add = TRUE)
 plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 
-plot(shpHom5, col = 'red', main = "Figura 12 b:  diferença entre 5_250 e 50_250")
+plot(shpHom5, col = 'darkgreen', main = "Figura 12 b:  diferença entre 5_250 e 50_250")
 plot(shpHom50 , col = alpha('darkorange', 0.5), add = TRUE)
 plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 ```
@@ -309,7 +309,7 @@ plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 
 ## Comparação entre 10 para 50
 ```{r shpHom10, echo=TRUE, cache=TRUE, fig.height=9, fig.width=9, fig.align="center"}
-plot(shpHom10, col = 'blue', main = "Figura 13:  diferença entre 10_250 e 50_250")
+plot(shpHom10, col = 'darkgreen', main = "Figura 13:  diferença entre 10_250 e 50_250")
 plot(shpHom50 , col = alpha('darkorange', 0.5), add = TRUE)
 plot(shpHom, col = alpha('yellow', 0.5), add = TRUE)
 
