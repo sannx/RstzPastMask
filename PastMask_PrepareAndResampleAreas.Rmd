@@ -1,0 +1,134 @@
+---
+title: "Recortar e reamostrar as áreas de análise escolhidas"
+author: "Oliveira-Santos, Claudinei"
+date: "19 de setembro de 2017"
+output: 
+  html_document: 
+    fig_caption: yes
+    fig_height: 12
+    fig_width: 12
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Pacotes, funções e configurações do R
+```{r PackFuncConf, message=FALSE, warning=FALSE, echo=TRUE}
+#Packages, functions and configurations
+options(scipen = 999)
+library(raster)
+library(scales)
+library(ggplot2)
+```
+
+### Áreas escolhidas
+
+Foram escolhidas três áreas para analisar o processo de reamostragem da versão oito (v8) do mapa síntese de pastagem gerado pelo Lapig. 
+- Bacia Hidrógrafica do Rio Vermelho - Cerrado
+- Amazônia
+- Mata Atlântica
+
+## Recortar imagem de NDVI para as áreas escolhidas
+```{r pastAreasFiles, echo=TRUE, cache=TRUE}
+# Recortar imagem de NDVI para as áreas escolhidas
+
+#Shape = Grid do Brasil 111 km/2
+shp <- shapefile("/hds/dados_work/GitHub/GridBrasil/gridbrasil/gridbrasilBrLim/Grid_BrLim_111_km_wgs84.shp")
+
+#Raster = Imagem de ndvi para o Brasil, referência para reamostragem
+rst <- raster('/hds/dados_work/DATASAN/raster/NDVI/BRASIL/pa_br_ndvi_250_2017001_lapig.tif')
+
+#Poligonos da areas amotrais (referencia é o shp)
+id <- c(AM = 655, MA = 944, BHRV = 1227)
+
+#Crop áreas
+for(i in 1:length(id)){
+  cat("loop", names(id[i]), "\n")
+
+  pathWrite <- paste0("dados/ndviSample/","NDVI_Sample_", names(id[i]), "_",id[i],".tif")
+  
+  shpSub <- shp[shp$OBJECTID == id[i], ]
+  
+  crop(rst, shpSub, filename = pathWrite, overwrite = TRUE)
+}
+
+rm(shp)
+rm(rst)
+```
+
+
+
+```{r pastAreasFiles, echo=TRUE, cache=TRUE}
+
+#Area escolhida na Amazônia rasterizada para 10 metros
+lsf <- list()
+am <- raster('dados/pastagemSample/Amazonia_past_id655_111km.tif')
+
+#Area escolhida na Mata altântica rasterizada para 10 metros
+ma <- raster('/hds/dados_work/GitHub/RstzPastMask/raster_10_to_250m//M_Atlantica_past_id1227_111km.tif')
+
+#Area escolhida na Bacia Hidrográfica do Rio Verelho rasterizada para 10 metros
+bhrv <- raster('/hds/dados_work/GitHub/RstzPastMask/raster_10_to_250m/BHRV_past_id944_111km.tif')
+
+
+###
+###
+#resample amazonia
+# ST <- Sys.time()
+# amResamp <- projectRaster(from = am, to = NdviAm,
+#                           filename = "/hds/dados_work/GitHub/RstzPastMask/raster_10_to_250m/Amazonia_Rsmp_250m_id655_111km.tif")
+# Sys.time() - ST
+# plot(stack(NdviAm, amResamp))
+
+###
+###
+#resample mata atlantica
+# ST <- Sys.time()
+# maResamp <- projectRaster(from = ma, to = NdviMa,
+#                           filename = "/hds/dados_work/GitHub/RstzPastMask/raster_10_to_250m/MataAtlantica_Rsmp_250m_id1227_111km.tif")
+# Sys.time() - ST
+# plot(stack(NdviMa, maResamp))
+
+###
+###
+#resample bhrv
+ST <- Sys.time()
+bhrvResamp <- projectRaster(from = bhrv, to = ndviBhrv,
+                          filename = "/hds/dados_work/GitHub/RstzPastMask/raster_10_to_250m/BHRV_Rsmp_250m_id944_111km.tif")
+Sys.time() - ST
+plot(stack(ndviBhrv, bhrvResamp))
+
+```
+
+
+
+```{r shpHom, echo=FALSE, cache=TRUE}
+shpHom1 <- shapefile("Shapefiles/CE_1m_250m.shp")
+shpHom5 <- shapefile("Shapefiles/CE_5m_250m.shp")
+shpHom10 <- shapefile("Shapefiles/CE_10m_250m.shp")
+shpHom50 <- shapefile("Shapefiles/CE_50m_250m.shp")
+```
+
+
+### Áreas analisadas
+<p style="text-align: justify;">
+áreas grandes e contíguas de pastagens.
+</p>
+
+<p style="text-align: justify;">
+*As  rasterização.*
+</p>
+
+|Area|hectare |
+|:---|:--- |
+|`Cerrado`|9685.74|
+|`Mata Atlântica`|4053.07 |
+
+
+```{r pastAreas, echo=TRUE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+
+```
+
+

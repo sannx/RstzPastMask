@@ -1,0 +1,197 @@
+---
+title: "Análise da reamostragem da mascara de pastagem para três áreas do Brasil"
+author: "Oliveira-Santos, Claudinei"
+date: "19 de setembro de 2017"
+output: 
+  html_document: 
+    fig_caption: yes
+    fig_height: 12
+    fig_width: 12
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r packages, message=FALSE, warning=FALSE, echo=FALSE}
+library(raster)
+library(scales)
+library(ggplot2)
+```
+
+
+
+```{r pastAreasFiles, echo=FALSE, cache=TRUE, fig.height=9, fig.width=18, fig.align="center"}
+shpBhrv <- shapefile("raster_10_to_250m/Past_v8_grid_111km/Past_v8_id_944_111km.shp")
+shpAm <- shapefile("raster_10_to_250m/Past_v8_grid_111km/Past_v8_id_655_111km.shp")
+shpMa <- shapefile("raster_10_to_250m/Past_v8_grid_111km/Past_v8_id_1227_111km.shp")
+```
+
+
+
+```{r past10mFiles, echo=FALSE, cache=TRUE}
+pastBhrv_10m <- raster("raster_10_to_250m/BHRV_past_id944_111km.tif")
+pastAm_10m <- raster("raster_10_to_250m/Amazonia_past_id655_111km.tif")
+pastMa_10m <- raster("raster_10_to_250m/M_Atlantica_past_id1227_111km.tif")
+```
+
+
+
+```{r past250mFiles, echo=FALSE, cache=TRUE}
+pastBhrv_250m <- raster("raster_10_to_250m/BHRV_Rsmp_250m_id944_111km.tif")
+pastAm_250m <- raster("raster_10_to_250m/Amazonia_Rsmp_250m_id655_111km.tif")
+pastMa_250m <- raster("raster_10_to_250m/MataAtlantica_Rsmp_250m_id1227_111km.tif")
+```
+
+
+
+```{r ndvi25mFiles, echo=FALSE, cache=TRUE}
+ndviBhrv_250m <- raster("raster_10_to_250m/NDVI_BHRV_id944_111km.tif")
+ndviAm_250m <- raster("raster_10_to_250m/NDVI_Amazonia_id665_111km.tif")
+ndviMa_250m <- raster("raster_10_to_250m/NDVI_MataAtlantica_id1227_111km.tif")
+```
+
+
+
+
+<p style="text-align: justify;">
+Foram selecionadas três áreas (cerrado, amazonia, mata atlântica)
+</p>
+
+
+
+### Áreas analisadas
+<p style="text-align: justify;">
+</p>
+
+```{r pastHomHet 1m, echo=TRUE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3))
+
+plot(pastAm_10m, col = "yellow", main = "Figura 2 A: Area de pastagem na Amazônia (res: 10m)")
+legend("topright", fill = "yellow", legend = "Pastagem")
+
+plot(pastMa_10m, col = "yellow", main = "Figura 2 B: Area de pastagem na Mata Atlantica (res: 10m)")
+legend("topright", fill = "yellow", legend = "Pastagem")
+
+plot(pastBhrv_10m, col = "yellow", main = "Figura 2 C: Area de pastagem na BHRV (res: 10m)")
+legend("topright", fill = "yellow", legend = "Pastagem")
+```
+
+
+
+```{r pastHomHet 5m, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3))
+
+plot(pastAm_250m, col = "red", main = "Figura 2 A: Area de pastagem na Amazônia (res: 250m)")
+legend("topright", fill = "red", legend = "Pastagem")
+
+plot(pastMa_250m, col = "red", main = "Figura 2 B: Area de pastagem na Mata Atlantica (res: 250m)")
+legend("topright", fill = "red", legend = "Pastagem")
+
+plot(pastBhrv_250m, col = "red", main = "Figura 2 C: Area de pastagem na BHRV (res: 250m)")
+legend("topright", fill = "red", legend = "Pastagem")
+```
+
+
+
+```{r pastHomHet 10m, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3))
+
+plot(ndviAm_250m, main = "Figura 2 A: NDVI na Amazônia (res: 250m)")
+legend("topright", legend = "NDVI")
+
+plot(ndviMa_250m, main = "Figura 2 B: NDVI na Mata Atlantica (res: 250m)")
+legend("topright", legend = "NDVI")
+
+plot(ndviBhrv_250m, main = "Figura 2 C: NDVI na BHRV (res: 250m)")
+legend("topright", legend = "NDVI")
+```
+
+```{r ndviPast shape, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3), bg = "gray")
+
+plot(ndviAm_250m, main = "Figura 2 A: NDVI e Pastagem na Amazônia (res: 10m)")
+plot(shpAm, col = alpha("yellow", 1), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "yellow"), legend = c("NDVI", "Pastagem"))
+
+plot(ndviMa_250m, main = "Figura 2 B: NDVI na Mata Atlantica (res: 10m)")
+plot(shpMa, col = alpha("yellow", 1), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "yellow"), legend = c("NDVI", "Pastagem"))
+
+plot(ndviBhrv_250m, main = "Figura 2 C: NDVI na BHRV (res: 10m)")
+plot(shpBhrv, col = alpha("yellow", 1), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "yellow"), legend = c("NDVI", "Pastagem"))
+
+```
+
+
+
+```{r ndviPast 10m, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3), col = "gray", mar = c(1,1,1,1), las = 3)
+
+plot(ndviAm_250m, main = "Figura 2 A: NDVI e Pastagem na Amazônia (res: 10m)")
+plot(pastAm_250m, col = alpha("yellow", 0.8), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "yellow"), legend = c("NDVI", "Pastagem"))
+
+plot(ndviMa_250m, main = "Figura 2 B: NDVI na Mata Atlantica (res: 10m)")
+plot(pastMa_250m, col = alpha("yellow", 0.8), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "yellow"), legend = c("NDVI", "Pastagem"))
+
+plot(ndviBhrv_250m, main = "Figura 2 C: NDVI na BHRV (res: 10m)")
+plot(pastBhrv_250m, col = alpha("yellow", 0.8), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "yellow"), legend = c("NDVI", "Pastagem"))
+
+```
+
+
+```{r ndviPast 250m, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3), col = "gray", mar = c(1,1,1,1), las = 3)
+
+plot(ndviAm_250m, main = "Figura 2 A: NDVI e Pastagem na Amazônia (res: 250m)")
+plot(pastAm_250m, col = alpha("red", 0.8), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "red"), legend = c("NDVI", "Pastagem"))
+
+plot(ndviMa_250m, main = "Figura 2 B: NDVI na Mata Atlantica (res: 250m)")
+plot(pastMa_250m, col = alpha("red", 0.8), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "red"), legend = c("NDVI", "Pastagem"))
+
+plot(ndviBhrv_250m, main = "Figura 2 C: NDVI na BHRV (res: 250m)")
+plot(pastBhrv_250m, col = alpha("red", 0.8), add = TRUE)
+legend("topright", fill = c(alpha("green", 0.5), "red"), legend = c("NDVI", "Pastagem"))
+
+```
+
+
+
+```{r AM_3, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3))
+
+plot(pastAm_10m, col = "yellow", main = "Figura 2 C: Pastagem na Amazônia (res: 10m)")
+legend("topright", fill = "yellow", legend = "Pastagem")
+
+plot(pastAm_250m, col = "red", main = "Figura 2 B: Pastagem na Amazônia (res: 250m)")
+legend("topright", fill = "red", legend = "Pastagem")
+
+plot(ndviAm_250m, main = "Figura 2 A: NDVI na Amazônia (res: 250m)")
+legend("topright", legend = "NDVI")
+
+```
+
+
+
+```{r MA_3, echo=FALSE, cache=TRUE, fig.height=6, fig.width=18, fig.align="center"}
+par(mfrow = c(1,3))
+
+plot(pastMa_10m, col = "yellow", main = "Figura 2 C: Pastagem na Mata Atlantica (res: 10m)")
+legend("topright", fill = "yellow", legend = "Pastagem")
+
+plot(pastMa_250m, col = "red", main = "Figura 2 B: Pastagem na Mata Atlantica (res: 250m)")
+legend("topright", fill = "red", legend = "Pastagem")
+
+plot(ndviMa_250m, main = "Figura 2 A: NDVI na Mata Atlantica (res: 250m)")
+legend("topright", legend = "NDVI")
+```
+
+
